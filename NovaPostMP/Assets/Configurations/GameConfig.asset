@@ -13,3 +13,8 @@ MonoBehaviour:
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::GameConfig
   <PlayerMoveSpeed>k__BackingField: 5
+  <GrabRange>k__BackingField: 2
+  <HoldOffset>k__BackingField: {x: 0, y: 0.7, z: 0.85}
+  <ThrowForce>k__BackingField: 10
+  <ItemPrefab>k__BackingField:
+    RawGuidValue: 2f0f6168ab8166c4eafdd07ec6dd732b

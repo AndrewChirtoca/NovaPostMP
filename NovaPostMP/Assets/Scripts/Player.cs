@@ -18,13 +18,21 @@ public class Player : NetworkBehaviour
 
         if (HasStateAuthority)
         {
+            if (data.Buttons.IsSet(NetworkInputData.SpawnItemActionBit))
+            {
+                Runner.Spawn(_gameConfig.ItemPrefab, transform.position + transform.forward + Vector3.up);
+            }
+
             if (data.Buttons.IsSet(NetworkInputData.GrabItemActionBit))
             {
                 if (HeldItem == null)
                 {
                     Item closestInteractable = TryFindClosestFreeItem();
-                    closestInteractable.Grab(this);
-                    HeldItem = closestInteractable;
+                    if(closestInteractable != null)
+                    {
+                        closestInteractable.Grab(this);
+                        HeldItem = closestInteractable;
+                    }
                 }
                 else
                 {
@@ -38,6 +46,15 @@ public class Player : NetworkBehaviour
                 if (HeldItem != null)
                 {
                     HeldItem.Throw(this, transform.forward, _gameConfig.ThrowForce);
+                    HeldItem = null;
+                }
+            }
+            
+            if (data.Buttons.IsSet(NetworkInputData.RemoveItemActionBit))
+            {
+                if (HeldItem != null)
+                {
+                    Runner.Despawn(HeldItem.Object);
                     HeldItem = null;
                 }
             }
