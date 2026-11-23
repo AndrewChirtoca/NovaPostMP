@@ -34,6 +34,17 @@ public class Item : NetworkBehaviour
         _rigidbody.isKinematic = false;
         ApplyColliderState();
     }
+    
+    public void Throw(Player player, Vector3 throwDirection, float throwForce)
+    {
+        if (!HasStateAuthority || Owner != player)
+            return;
+
+        Owner = null;
+        _rigidbody.isKinematic = false;
+        _rigidbody.AddForce(throwDirection.normalized * throwForce, ForceMode.Impulse);
+        ApplyColliderState();
+    }
 
     public override void FixedUpdateNetwork()
     {
@@ -57,7 +68,7 @@ public class Item : NetworkBehaviour
             _rigidbody.MovePosition(Owner.transform.position + Owner.transform.rotation * _gameConfig.HoldOffset);
         }
     }
-    
+
     public override void Render()
     {
         base.Render();

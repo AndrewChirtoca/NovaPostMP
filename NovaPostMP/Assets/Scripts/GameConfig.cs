@@ -9,4 +9,6 @@ public class GameConfig : ScriptableObject
     [field : Header("Holding Settings")]
     [field : SerializeField][field : Range(0f, 5f)] public float GrabRange { get; private set; } = 2f;
     [field : SerializeField] public Vector3 HoldOffset { get; private set; } = new (0f, 0.7f, 0.85f);
+    
+    [field : SerializeField][field : Range(0f, 10f)] public float ThrowForce { get; private set; } = 5f;
 }

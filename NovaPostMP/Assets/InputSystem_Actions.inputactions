@@ -97,7 +97,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Spawn",
+                    "name": "SpawnItem",
                     "type": "Button",
                     "id": "220b959f-5763-4958-a9d1-145592fd9d78",
                     "expectedControlType": "",
@@ -107,7 +107,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Grab",
+                    "name": "GrabItem",
                     "type": "Button",
                     "id": "9ccfc7e9-c829-4bf7-9909-08bcb0c96090",
                     "expectedControlType": "",
@@ -117,7 +117,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Throw",
+                    "name": "ThrowItem",
                     "type": "Button",
                     "id": "bc2a2f2c-d798-447d-bbc6-432fad2b2083",
                     "expectedControlType": "",
@@ -127,7 +127,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Remove",
+                    "name": "RemoveItem",
                     "type": "Button",
                     "id": "6d017cf4-b7a3-4b95-9e2a-42ba630d744c",
                     "expectedControlType": "",
@@ -530,7 +530,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Spawn",
+                    "action": "SpawnItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -541,7 +541,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Grab",
+                    "action": "GrabItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -552,7 +552,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Throw",
+                    "action": "ThrowItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -563,7 +563,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Remove",
+                    "action": "RemoveItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

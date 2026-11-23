@@ -32,11 +32,21 @@ public class Player : NetworkBehaviour
                     HeldItem = null;
                 }
             }
+
+            if (data.Buttons.IsSet(NetworkInputData.ThrowItemActionBit))
+            {
+                if (HeldItem != null)
+                {
+                    HeldItem.Throw(this, transform.forward, _gameConfig.ThrowForce);
+                    HeldItem = null;
+                }
+            }
         }
     }
-    
+
     private Item TryFindClosestFreeItem()
     {
+        //TODO: move this declaration to class-level to avoid allocations
         var hits = new Collider[10];
         Physics.OverlapSphereNonAlloc(transform.position, _gameConfig.GrabRange, hits);
         float closestDistance = _gameConfig.GrabRange * _gameConfig.GrabRange;
