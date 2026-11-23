@@ -39,19 +39,35 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         var data = new NetworkInputData();
 
         data.Direction = new Vector3(_moveDirection.x, 0, _moveDirection.y);
-        data.Buttons.Set(NetworkInputData.InteractActionBit, _interactAction);
-        _interactAction = false;
+        
+        data.Buttons.Set(NetworkInputData.SpawnItemActionBit, _spawnItemAction);
+        _spawnItemAction = false;
+        
+        data.Buttons.Set(NetworkInputData.GrabItemActionBit, _grabItemAction);
+        _grabItemAction = false;
+        
+        data.Buttons.Set(NetworkInputData.ThrowItemActionBit, _throwItemAction);
+        _throwItemAction = false;
+        
+        data.Buttons.Set(NetworkInputData.RemoveItemActionBit, _removeItemAction);
+        _removeItemAction = false;
 
         input.Set(data);
     }
 
     [SerializeField] private InputActionAsset _inputActions;
-    private bool _interactAction;
+    private bool _spawnItemAction;
+    private bool _grabItemAction;
+    private bool _throwItemAction;
+    private bool _removeItemAction;
     private Vector2 _moveDirection;
 
     private void Update()
     {
-        _interactAction = _interactAction || _inputActions.FindAction("Interact").WasPressedThisFrame();
+        _spawnItemAction = _spawnItemAction || _inputActions.FindAction("SpawnItem").WasPressedThisFrame();
+        _grabItemAction = _grabItemAction || _inputActions.FindAction("GrabItem").WasPressedThisFrame();
+        _throwItemAction = _throwItemAction || _inputActions.FindAction("ThrowItem").WasPressedThisFrame();
+        _removeItemAction = _removeItemAction || _inputActions.FindAction("RemoveItem").WasPressedThisFrame();
         _moveDirection = _inputActions.FindAction("Move").ReadValue<Vector2>();
     }
     #endregion

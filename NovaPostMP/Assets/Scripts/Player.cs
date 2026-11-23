@@ -18,7 +18,7 @@ public class Player : NetworkBehaviour
 
         if (HasStateAuthority)
         {
-            if (data.Buttons.IsSet(NetworkInputData.InteractActionBit))
+            if (data.Buttons.IsSet(NetworkInputData.GrabItemActionBit))
             {
                 if (HeldItem == null)
                 {
