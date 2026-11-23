@@ -34,29 +34,25 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     #region Input handling
-    [SerializeField] private InputActionAsset _inputActions;
     void INetworkRunnerCallbacks.OnInput(NetworkRunner runner, NetworkInput input)
     {
         var data = new NetworkInputData();
 
-        var moveAction = _inputActions.FindAction("Move");
-        if (moveAction.IsPressed())
-        {
-            var moveValue = moveAction.ReadValue<Vector2>();
-            data.Direction = new Vector3(moveValue.x, 0, moveValue.y);
-        }
-        
+        data.Direction = new Vector3(_moveDirection.x, 0, _moveDirection.y);
         data.Buttons.Set(NetworkInputData.InteractActionBit, _interactAction);
         _interactAction = false;
 
         input.Set(data);
     }
-    
+
+    [SerializeField] private InputActionAsset _inputActions;
     private bool _interactAction;
+    private Vector2 _moveDirection;
 
     private void Update()
     {
         _interactAction = _interactAction || _inputActions.FindAction("Interact").WasPressedThisFrame();
+        _moveDirection = _inputActions.FindAction("Move").ReadValue<Vector2>();
     }
     #endregion
 
