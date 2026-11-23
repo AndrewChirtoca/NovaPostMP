@@ -6,7 +6,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameConfig _gameConfig;
     [SerializeField] private NetworkCharacterController _networkCharacterController;
     
-    [Networked] private Delivery HeldDelivery { get; set; }
+    [Networked] private Item HeldItem { get; set; }
 
     public override void FixedUpdateNetwork()
     {
@@ -15,59 +15,50 @@ public class Player : NetworkBehaviour
             data.Direction.Normalize();
             _networkCharacterController.Move(_gameConfig.PlayerMoveSpeed * data.Direction * Runner.DeltaTime);
         }
-        
-        // New grabbing code
+
         if (HasStateAuthority)
         {
             if (data.Buttons.IsSet(NetworkInputData.InteractActionBit))
             {
-                if (HeldDelivery == null)
+                if (HeldItem == null)
                 {
-                    TryGrabDelivery();
+                    Item closestInteractable = TryFindClosestFreeItem();
+                    closestInteractable.Grab(this);
+                    HeldItem = closestInteractable;
                 }
                 else
                 {
-                    HeldDelivery.Release(this);
-                    HeldDelivery = null;
+                    HeldItem.Release(this);
+                    HeldItem = null;
                 }
-            }
-
-            // Update the held delivery every network tick.
-            if (HeldDelivery != null)
-            {
-                Vector3 holdPosition = transform.position + transform.rotation * _gameConfig.HoldOffset;
-                HeldDelivery.Follow(this, holdPosition);
             }
         }
     }
     
-    private void TryGrabDelivery()
+    private Item TryFindClosestFreeItem()
     {
-        if (!HasStateAuthority || HeldDelivery != null)
-            return;
-
         var hits = new Collider[10];
         Physics.OverlapSphereNonAlloc(transform.position, _gameConfig.GrabRange, hits);
         float closestDistance = _gameConfig.GrabRange * _gameConfig.GrabRange;
-        Delivery closestDelivery = null;
+        Item closestFreeItem = null;
 
         foreach (Collider hit in hits)
         {
             if(hit == null)
                 continue;
 
-            Delivery delivery = hit.GetComponent<Delivery>();
+            var item = hit.GetComponent<Item>();
 
-            if (delivery == null || delivery.HeldBy != null)
+            if (item == null || item.Owner != null)
                 continue;
 
-            Vector3 direction = delivery.transform.position - transform.position;
+            Vector3 direction = hit.transform.position - transform.position;
             float distance = direction.sqrMagnitude;
 
             if (distance >= closestDistance)
                 continue;
 
-            // Only grab deliveries roughly in front of the player.
+            // Only grab items roughly in front of the player.
             Vector3 horizontal = direction;
             horizontal.y = 0f;
 
@@ -79,13 +70,10 @@ public class Player : NetworkBehaviour
                     continue;
             }
 
-            closestDelivery = delivery;
+            closestFreeItem = item;
             closestDistance = distance;
         }
-
-        if (closestDelivery != null && closestDelivery.Grab(this))
-        {
-            HeldDelivery = closestDelivery;
-        }
+        
+        return closestFreeItem;
     }
 }
