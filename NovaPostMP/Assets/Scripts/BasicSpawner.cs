@@ -68,6 +68,15 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
     async void StartGame(GameMode mode)
     {
+#if UNITY_EDITOR
+        FusionGlobalScriptableObject.ClearTypesFailedToLoad();
+
+        var configAsset =
+            Resources.Load<NetworkProjectConfigAsset>("NetworkProjectConfig");
+
+        Debug.Log($"Fusion config resource visible: {configAsset != null}");
+#endif
+
         // Create the Fusion runner and let it know that we will be providing user input
         _runner = gameObject.AddComponent<NetworkRunner>();
         _runner.ProvideInput = true;
