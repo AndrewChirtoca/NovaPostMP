@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5923598850416748883}
   - component: {fileID: 6628314586194232388}
   - component: {fileID: 408632691558427283}
+  - component: {fileID: -7440830548395826857}
   m_Layer: 0
   m_Name: DeliveryPrefab
   m_TagString: Untagged
@@ -119,7 +120,25 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 6628314586194232388}
+  - {fileID: -7440830548395826857}
   ForceRemoteRenderTimeframe: 0
+--- !u!114 &-7440830548395826857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829146946825097928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3f07cc429e36b34997f8e058333cb78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  _HeldBy: {fileID: 0}
+  _gameConfig: {fileID: 11400000, guid: 10db06105398b75419e946917494e0b7, type: 2}
+  _rigidbody: {fileID: 5923598850416748883}
+  _collider: {fileID: 4444529290961550584}
+  _visual: {fileID: 3981609098705222248}
 --- !u!1 &3176466091597140791
 GameObject:
   m_ObjectHideFlags: 0

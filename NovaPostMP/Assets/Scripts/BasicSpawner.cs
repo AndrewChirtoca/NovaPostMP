@@ -33,7 +33,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-    //TODO: use New Input System instead of the old Input class
+    #region Input handling
     [SerializeField] private InputActionAsset _inputActions;
     void INetworkRunnerCallbacks.OnInput(NetworkRunner runner, NetworkInput input)
     {
@@ -45,9 +45,20 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             var moveValue = moveAction.ReadValue<Vector2>();
             data.Direction = new Vector3(moveValue.x, 0, moveValue.y);
         }
+        
+        data.Buttons.Set(NetworkInputData.InteractActionBit, _interactAction);
+        _interactAction = false;
 
         input.Set(data);
     }
+    
+    private bool _interactAction;
+
+    private void Update()
+    {
+        _interactAction = _interactAction || _inputActions.FindAction("Interact").WasPressedThisFrame();
+    }
+    #endregion
 
     void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
     void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
