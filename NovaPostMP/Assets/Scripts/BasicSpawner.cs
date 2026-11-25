@@ -12,24 +12,27 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
     public int MaxPlayers { get; set; } = 4;
 
+    public void SpawnPlayer(NetworkRunner runner, PlayerRef player)
+    {
+        if (!runner.IsServer || _spawnedCharacters.ContainsKey(player))
+            return;
+
+        var position = new Vector3((player.RawEncoded % MaxPlayers) * 3, 1, 0);
+        var avatar = runner.Spawn(_playerPrefab, position, Quaternion.identity, player);
+        _spawnedCharacters.Add(player, avatar);
+        runner.SetPlayerObject(player, avatar);
+    }
+
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (runner.IsServer)
-        {
-            // Create a unique position for the player
-            Vector3 spawnPosition = new Vector3((player.RawEncoded % MaxPlayers) * 3, 1, 0);
-            NetworkObject networkPlayerObject = runner.Spawn(_playerPrefab, spawnPosition, Quaternion.identity, player);
-            // Keep track of the player avatars for easy access
-            _spawnedCharacters.Add(player, networkPlayerObject);
-        }
+        SpawnPlayer(runner, player);
     }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
-        if (_spawnedCharacters.TryGetValue(player, out NetworkObject networkObject))
+        if (runner.IsServer && _spawnedCharacters.Remove(player, out var avatar) && avatar != null)
         {
-            runner.Despawn(networkObject);
-            _spawnedCharacters.Remove(player);
+            runner.Despawn(avatar);
         }
     }
 
