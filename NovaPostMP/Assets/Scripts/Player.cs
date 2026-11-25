@@ -16,47 +16,47 @@ public class Player : NetworkBehaviour
             _networkCharacterController.Move(_gameConfig.PlayerMoveSpeed * data.Direction * Runner.DeltaTime);
         }
 
-        if (HasStateAuthority)
+        if (!HasStateAuthority)
+            return;
+
+        if (data.Buttons.IsSet(NetworkInputData.SpawnItemActionBit))
         {
-            if (data.Buttons.IsSet(NetworkInputData.SpawnItemActionBit))
-            {
-                Runner.Spawn(_gameConfig.ItemPrefab, transform.position + transform.forward + Vector3.up);
-            }
+            Runner.Spawn(_gameConfig.ItemPrefab, transform.position + transform.forward + Vector3.up);
+        }
 
-            if (data.Buttons.IsSet(NetworkInputData.GrabItemActionBit))
+        if (data.Buttons.IsSet(NetworkInputData.GrabItemActionBit))
+        {
+            if (HeldItem == null)
             {
-                if (HeldItem == null)
+                Item closestInteractable = TryFindClosestFreeItem();
+                if (closestInteractable != null)
                 {
-                    Item closestInteractable = TryFindClosestFreeItem();
-                    if(closestInteractable != null)
-                    {
-                        closestInteractable.Grab(this);
-                        HeldItem = closestInteractable;
-                    }
-                }
-                else
-                {
-                    HeldItem.Release(this);
-                    HeldItem = null;
+                    closestInteractable.Grab(this);
+                    HeldItem = closestInteractable;
                 }
             }
+            else
+            {
+                HeldItem.Release(this);
+                HeldItem = null;
+            }
+        }
 
-            if (data.Buttons.IsSet(NetworkInputData.ThrowItemActionBit))
+        if (data.Buttons.IsSet(NetworkInputData.ThrowItemActionBit))
+        {
+            if (HeldItem != null)
             {
-                if (HeldItem != null)
-                {
-                    HeldItem.Throw(this, transform.forward, _gameConfig.ThrowForce);
-                    HeldItem = null;
-                }
+                HeldItem.Throw(this, transform.forward, _gameConfig.ThrowForce);
+                HeldItem = null;
             }
-            
-            if (data.Buttons.IsSet(NetworkInputData.RemoveItemActionBit))
+        }
+
+        if (data.Buttons.IsSet(NetworkInputData.RemoveItemActionBit))
+        {
+            if (HeldItem != null)
             {
-                if (HeldItem != null)
-                {
-                    Runner.Despawn(HeldItem.Object);
-                    HeldItem = null;
-                }
+                Runner.Despawn(HeldItem.Object);
+                HeldItem = null;
             }
         }
     }
