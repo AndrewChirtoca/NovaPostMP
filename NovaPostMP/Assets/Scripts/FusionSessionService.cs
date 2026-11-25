@@ -39,13 +39,14 @@ public class FusionSessionService : ISessionService
             UnityEngine.Object.DontDestroyOnLoad(_runner.gameObject);
 
             _runner.ProvideInput = true;
+            _runner.GetComponent<BasicSpawner>().MaxPlayers = _settings.MaxPlayers;
             _runner.GetComponent<NetworkEvents>().OnShutdown.AddListener(OnShutdown);
 
             var args = new StartGameArgs
             {
                 GameMode = mode,
                 SessionName = room.Trim(),
-                PlayerCount = 2,
+                PlayerCount = _settings.MaxPlayers,
                 EnableClientSessionCreation = false,
                 SceneManager = _runner.GetComponent<NetworkSceneManagerDefault>()
             };
