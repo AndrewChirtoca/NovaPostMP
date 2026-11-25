@@ -3,7 +3,7 @@ using UnityEngine;
 
 //NOTE: DefaultExecutionOrder is necessary to ensure that the Render() runs after the player's interpolation
 //has been applied, so that the item's visuals are rendered in the correct position.
-[DefaultExecutionOrder(1000)]
+[DefaultExecutionOrder(2000)]
 public class Item : NetworkBehaviour
 {
     [Networked] public Player Owner { get; set; }
