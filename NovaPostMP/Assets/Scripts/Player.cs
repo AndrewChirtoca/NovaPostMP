@@ -7,6 +7,12 @@ public class Player : NetworkBehaviour
     [SerializeField] private NetworkCharacterController _networkCharacterController;
     
     [Networked] private Item HeldItem { get; set; }
+    private int _itemLayerMask;
+    
+    private void Awake()
+    {
+        _itemLayerMask = 1 << LayerMask.NameToLayer("Item");
+    }
 
     public override void FixedUpdateNetwork()
     {
@@ -28,7 +34,7 @@ public class Player : NetworkBehaviour
         {
             if (HeldItem == null)
             {
-                Item closestInteractable = TryFindClosestFreeItem();
+                Item closestInteractable = TryFindClosestFreeItem(_itemLayerMask);
                 if (closestInteractable != null)
                 {
                     closestInteractable.Grab(this);
@@ -61,11 +67,9 @@ public class Player : NetworkBehaviour
         }
     }
 
-    private Item TryFindClosestFreeItem()
+    private Item TryFindClosestFreeItem(int layerMask = -1)
     {
-        //TODO: move this declaration to class-level to avoid allocations
-        var hits = new Collider[10];
-        Physics.OverlapSphereNonAlloc(transform.position, _gameConfig.GrabRange, hits);
+        Collider[] hits = Physics.OverlapSphere(transform.position, _gameConfig.GrabRange, layerMask);
         float closestDistance = _gameConfig.GrabRange * _gameConfig.GrabRange;
         Item closestFreeItem = null;
 

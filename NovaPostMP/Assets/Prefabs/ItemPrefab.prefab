@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6628314586194232388}
   - component: {fileID: 408632691558427283}
   - component: {fileID: -7440830548395826857}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ItemPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3f07cc429e36b34997f8e058333cb78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _HeldBy: {fileID: 0}
+  _Owner: {fileID: 0}
   _gameConfig: {fileID: 11400000, guid: 10db06105398b75419e946917494e0b7, type: 2}
   _rigidbody: {fileID: 5923598850416748883}
   _collider: {fileID: 4444529290961550584}
