@@ -19,7 +19,7 @@ public class FusionSessionService : ISessionService
 
     public Task<(bool Success, string Error)> JoinAsync(string room) => ConnectAsync(GameMode.Client, room);
     
-    public Task LeaveAsync() => IsBusy ? Task.CompletedTask : StopAsync();
+    public Task LeaveAsync() => IsBusy ? Task.CompletedTask : StopAsync("Disconnected");
 
     private async Task<(bool Success, string Error)> ConnectAsync(GameMode mode, string room)
     {
@@ -73,18 +73,18 @@ public class FusionSessionService : ISessionService
             }
             else
             {
-                await StopAsync();
+                await StopAsync("Disconnected");
             }
         }
     }
 
-    private async Task StopAsync()
+    private async Task StopAsync(string status, bool shutdown = true)
     {
         IsBusy = true;
 
         try
         {
-            if (_runner != null)
+            if (shutdown && _runner != null)
             {
                 await _runner.Shutdown(destroyGameObject: false);
             }
@@ -92,18 +92,24 @@ public class FusionSessionService : ISessionService
         finally
         {
             Cleanup();
-            Status = "Disconnected";
+            Status = status;
             IsBusy = false;
         }
     }
 
-    private void OnShutdown(NetworkRunner runner, ShutdownReason reason)
+    private async void OnShutdown(NetworkRunner runner, ShutdownReason reason)
     {
-        if (_runner != runner)
+        if (_runner != runner || IsBusy)
             return;
 
-        Status = $"Disconnected: {reason}";
-        Cleanup();
+        try
+        {
+            await StopAsync($"Disconnected: {reason}", shutdown: false);
+        }
+        catch (System.Exception exception)
+        {
+            UnityEngine.Debug.LogError(exception.Message);
+        }
     }
 
     private void Cleanup()

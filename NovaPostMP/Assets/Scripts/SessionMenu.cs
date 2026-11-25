@@ -61,6 +61,7 @@ public class SessionMenu : MonoBehaviour
         }
         catch (Exception exception)
         {
+            _error = exception.Message;
             Debug.LogError(exception.Message);
         }
     }
