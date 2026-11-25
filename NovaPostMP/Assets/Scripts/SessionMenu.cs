@@ -45,9 +45,17 @@ public class SessionMenu : MonoBehaviour
                 });
             }
         }
-        else if (GUILayout.Button("Leave"))
+        else
         {
-            Run(() => _session.LeaveAsync());
+            foreach (var player in _session.Players)
+            {
+                GUILayout.Label(player);
+            }
+
+            if (GUILayout.Button("Leave"))
+            {
+                Run(() => _session.LeaveAsync());
+            }
         }
 
         GUI.enabled = true;

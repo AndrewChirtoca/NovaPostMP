@@ -1,10 +1,19 @@
 using System.Threading.Tasks;
 using Fusion;
+using System.Linq;
+using System.Collections.Generic;
 
 public class FusionSessionService : ISessionService
 {
     private readonly FusionSessionSettings _settings;
     private NetworkRunner _runner;
+    private NetworkLobby _lobby;
+
+    private NetworkLobby Lobby => !IsConnected ? null : _lobby != null ? _lobby
+        : _lobby = _runner.GetAllBehaviours<NetworkLobby>().FirstOrDefault();
+
+    public IEnumerable<string> Players => Lobby == null ? Enumerable.Empty<string>()
+        : Lobby.Members.Select(entry => entry.Value.Name.ToString());
 
     public bool IsBusy { get; private set; }
     public bool IsConnected => _runner != null && _runner.IsRunning;
@@ -41,6 +50,7 @@ public class FusionSessionService : ISessionService
             _runner.ProvideInput = true;
             _runner.GetComponent<BasicSpawner>().MaxPlayers = _settings.MaxPlayers;
             _runner.GetComponent<NetworkEvents>().OnShutdown.AddListener(OnShutdown);
+            _runner.GetComponent<NetworkEvents>().OnSceneLoadDone.AddListener(OnSceneLoadDone);
 
             var args = new StartGameArgs
             {
@@ -57,11 +67,10 @@ public class FusionSessionService : ISessionService
             }
 
             var result = await _runner.StartGame(args);
-            connected = result.Ok;
-
-            if (!connected)
+            if (!result.Ok)
                 return (false, result.ShutdownReason.ToString());
 
+            connected = true;
             Status = mode == GameMode.Host ? "Hosting" : "Connected";
             return (true, null);
         }
@@ -117,9 +126,20 @@ public class FusionSessionService : ISessionService
         if (_runner != null)
         {
             _runner.GetComponent<NetworkEvents>().OnShutdown.RemoveListener(OnShutdown);
+            _runner.GetComponent<NetworkEvents>().OnSceneLoadDone.RemoveListener(OnSceneLoadDone);
             UnityEngine.Object.Destroy(_runner.gameObject);
         }
 
         _runner = null;
+        _lobby = null;
+    }
+    
+    private void OnSceneLoadDone(NetworkRunner runner)
+    {
+        if (!runner.IsServer || _lobby != null)
+            return;
+
+        _lobby = runner.Spawn(_settings.LobbyPrefab)
+            .GetComponent<NetworkLobby>();
     }
 }

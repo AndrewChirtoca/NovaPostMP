@@ -500,6 +500,8 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   _runnerPrefab: {fileID: 3605812675329143266, guid: abd216d35b79fa740b17c2fbdb387f37, type: 3}
+  _lobbyPrefab:
+    RawGuidValue: 9786d42906afd7f4597a7c96a25de9e4
   menu: {fileID: 1298241755}
   _initialSceneIndex: 0
   _maxPlayers: 4
