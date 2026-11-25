@@ -34,17 +34,20 @@ public class Player : NetworkBehaviour
         {
             if (HeldItem == null)
             {
-                Item closestInteractable = TryFindClosestFreeItem(_itemLayerMask);
-                if (closestInteractable != null)
+                if (TryFindClosestFreeItem(out Item closestFreeItem, _itemLayerMask))
                 {
-                    closestInteractable.Grab(this);
-                    HeldItem = closestInteractable;
+                    if (closestFreeItem.TryGrab(this))
+                    {
+                        HeldItem = closestFreeItem;
+                    }
                 }
             }
             else
             {
-                HeldItem.Release(this);
-                HeldItem = null;
+                if (HeldItem.TryRelease(this))
+                {
+                    HeldItem = null;
+                }
             }
         }
 
@@ -52,8 +55,10 @@ public class Player : NetworkBehaviour
         {
             if (HeldItem != null)
             {
-                HeldItem.Throw(this, transform.forward, _gameConfig.ThrowForce);
-                HeldItem = null;
+                if (HeldItem.TryThrow(this, transform.forward, _gameConfig.ThrowForce))
+                {
+                    HeldItem = null;
+                }
             }
         }
 
@@ -67,11 +72,11 @@ public class Player : NetworkBehaviour
         }
     }
 
-    private Item TryFindClosestFreeItem(int layerMask = -1)
+    private bool TryFindClosestFreeItem(out Item closestFreeItem, int layerMask = -1)
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, _gameConfig.GrabRange, layerMask);
         float closestDistance = _gameConfig.GrabRange * _gameConfig.GrabRange;
-        Item closestFreeItem = null;
+        closestFreeItem = null;
 
         foreach (Collider hit in hits)
         {
@@ -104,7 +109,7 @@ public class Player : NetworkBehaviour
             closestFreeItem = item;
             closestDistance = distance;
         }
-        
-        return closestFreeItem;
+
+        return closestFreeItem != null;
     }
 }

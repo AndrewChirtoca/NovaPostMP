@@ -13,37 +13,40 @@ public class Item : NetworkBehaviour
     [SerializeField] private Collider _collider;
     [SerializeField] private Transform _visual;
 
-    public void Grab(Player player)
+    public bool TryGrab(Player player)
     {
         if (!HasStateAuthority || Owner != null)
-            return;
+            return false;
 
         Owner = player;
         ApplyColliderState();
         _rigidbody.linearVelocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
         _rigidbody.isKinematic = true;
+        return true;
     }
 
-    public void Release(Player player)
+    public bool TryRelease(Player player)
     {
         if (!HasStateAuthority || Owner != player)
-            return;
+            return false;
 
         Owner = null;
         _rigidbody.isKinematic = false;
         ApplyColliderState();
+        return true;
     }
     
-    public void Throw(Player player, Vector3 throwDirection, float throwForce)
+    public bool TryThrow(Player player, Vector3 throwDirection, float throwForce)
     {
         if (!HasStateAuthority || Owner != player)
-            return;
+            return false;
 
         Owner = null;
         _rigidbody.isKinematic = false;
         _rigidbody.AddForce(throwDirection.normalized * throwForce, ForceMode.Impulse);
         ApplyColliderState();
+        return true;
     }
 
     public override void FixedUpdateNetwork()
