@@ -53,7 +53,7 @@ public class SessionMenu : MonoBehaviour
         {
             foreach (var player in _session.Players)
             {
-                GUILayout.Label(player);
+                GUILayout.Label(player.Name + (_session.IsLoading ? player.Loaded ? " - loaded" : " - loading" : ""));
             }
 
             if (_session.CanStart && GUILayout.Button("Start"))

@@ -15,13 +15,14 @@ public class FusionSessionService : ISessionService
     private NetworkLobby Lobby => !IsConnected ? null : _lobby != null && _lobby.IsValid ? _lobby
         : _lobby = _runner.GetAllBehaviours<NetworkLobby>().FirstOrDefault(lobby => lobby.IsValid);
 
-    public IEnumerable<string> Players => Lobby == null ? Enumerable.Empty<string>()
-        : Lobby.Members.Select(entry => entry.Value.Name.ToString());
+    public IEnumerable<(string Name, bool Loaded)> Players => Lobby == null
+        ? Enumerable.Empty<(string, bool)>()
+        : Lobby.Members.Select(entry => (entry.Value.Name.ToString(), (bool)entry.Value.Loaded));
 
     public bool IsBusy { get; private set; }
     public bool IsConnected => _runner != null && _runner.IsRunning;
     public bool CanStart => !IsBusy && Lobby != null && _runner.IsServer && !Lobby.GameRequested;
-    public bool IsPlaying => !IsBusy && Lobby != null && Lobby.IsValid && Lobby.GameStarted
+    public bool IsPlaying => !IsBusy && Lobby != null && Lobby.IsValid && Lobby.CanPlay(_runner.LocalPlayer)
         && _runner.TryGetPlayerObject(_runner.LocalPlayer, out var avatar) && avatar != null;
     public bool IsLoading => Lobby != null && Lobby.GameRequested && !IsPlaying;
     public string Status { get; private set; } = "Disconnected";
@@ -183,8 +184,7 @@ public class FusionSessionService : ISessionService
         _lobby = null;
     }
     
-    private void OnConnectRequest(NetworkRunner runner,
-        NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
+    private void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
     {
         if (runner.ActivePlayers.Count() < _settings.MaxPlayers)
             request.Accept();

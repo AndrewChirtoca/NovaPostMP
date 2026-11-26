@@ -5,6 +5,8 @@ using System.Text;
 public struct LobbyMember : INetworkStruct
 {
     public NetworkString<_32> Name;
+    public NetworkBool Loaded;
+    public NetworkBool BlocksStart;
 }
 
 public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
@@ -16,33 +18,76 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
     [Networked] public bool GameRequested { get; private set; }
     [Networked] public bool GameStarted { get; private set; }
     private PlayerSpawner _spawner;
+    private bool _reportedLoaded;
 
     public void BeginLoading()
     {
-        if (HasStateAuthority)
+        if (!HasStateAuthority)
+            return;
+
+        GameRequested = true;
+        foreach (var entry in Members)
         {
-            GameRequested = true;
+            var member = entry.Value;
+            member.BlocksStart = true;
+            Members.Set(entry.Key, member);
         }
     }
 
     public override void Render()
     {
+        if (_reportedLoaded || !GameRequested)
+            return;
+
         var scene = SceneManager.GetSceneByBuildIndex(GameplaySceneIndex);
-        if (HasStateAuthority && GameRequested && scene.IsValid() && scene.isLoaded && !Runner.IsSceneManagerBusy)
+        if (scene.IsValid() && scene.isLoaded && !Runner.IsSceneManagerBusy)
         {
-            GameStarted = true;
+            RPC_Loaded();
+            _reportedLoaded = true;
         }
     }
 
     public override void FixedUpdateNetwork()
     {
-        if (HasStateAuthority && GameStarted)
+        if (!HasStateAuthority || !GameRequested)
+            return;
+
+        if (!GameStarted)
+        {
+            bool allLoaded = true;
+            foreach (var entry in Members)
+            {
+                if (entry.Value.BlocksStart && !entry.Value.Loaded)
+                    allLoaded = false;
+            }
+
+            if (allLoaded)
+                GameStarted = true;
+        }
+
+        if (GameStarted)
         {
             foreach (var entry in Members)
             {
-                _spawner.SpawnPlayer(entry.Key);
+                if (entry.Value.Loaded)
+                    _spawner.SpawnPlayer(entry.Key);
             }
         }
+    }
+
+    public bool CanPlay(PlayerRef player)
+    {
+        return GameStarted && Members.TryGet(player, out var member) && member.Loaded;
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_Loaded(RpcInfo info = default)
+    {
+        if (!GameRequested || !Members.TryGet(info.Source, out var member))
+            return;
+
+        member.Loaded = true;
+        Members.Set(info.Source, member);
     }
 
     public override void Spawned()
