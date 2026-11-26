@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Fusion;
+using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -8,6 +9,7 @@ public class FusionSessionService : ISessionService
     private readonly FusionSessionSettings _settings;
     private NetworkRunner _runner;
     private NetworkLobby _lobby;
+    private string _playerName;
 
     private NetworkLobby Lobby => !IsConnected ? null : _lobby != null ? _lobby
         : _lobby = _runner.GetAllBehaviours<NetworkLobby>().FirstOrDefault();
@@ -24,20 +26,23 @@ public class FusionSessionService : ISessionService
         _settings = settings;
     }
     
-    public Task<(bool Success, string Error)> HostAsync(string room) => ConnectAsync(GameMode.Host, room);
+    public Task<(bool Success, string Error)> HostAsync(string room, string playerName)
+        => ConnectAsync(GameMode.Host, room, playerName);
 
-    public Task<(bool Success, string Error)> JoinAsync(string room) => ConnectAsync(GameMode.Client, room);
+    public Task<(bool Success, string Error)> JoinAsync(string room, string playerName)
+        => ConnectAsync(GameMode.Client, room, playerName);
     
     public Task LeaveAsync() => IsBusy ? Task.CompletedTask : StopAsync("Disconnected");
 
-    private async Task<(bool Success, string Error)> ConnectAsync(GameMode mode, string room)
+    private async Task<(bool Success, string Error)> ConnectAsync(GameMode mode, string room, string playerName)
     {
         if (IsBusy || _runner != null)
             return (false, "A session is already active or connecting.");
 
-        if (string.IsNullOrWhiteSpace(room))
-            return (false, "Enter a room name.");
+        if (string.IsNullOrWhiteSpace(room) || string.IsNullOrWhiteSpace(playerName))
+            return (false, "Enter a room name and a player name.");
 
+        _playerName = playerName.Trim();
         IsBusy = true;
         Status = "Connecting...";
         bool connected = false;
@@ -56,6 +61,7 @@ public class FusionSessionService : ISessionService
             {
                 GameMode = mode,
                 SessionName = room.Trim(),
+                ConnectionToken = Encoding.UTF8.GetBytes(_playerName),
                 PlayerCount = _settings.MaxPlayers,
                 EnableClientSessionCreation = false,
                 SceneManager = _runner.GetComponent<NetworkSceneManagerDefault>()
@@ -139,7 +145,12 @@ public class FusionSessionService : ISessionService
         if (!runner.IsServer || _lobby != null)
             return;
 
-        _lobby = runner.Spawn(_settings.LobbyPrefab)
-            .GetComponent<NetworkLobby>();
+        runner.Spawn(_settings.LobbyPrefab, onBeforeSpawned: InitializeLobby);
+    }
+    
+    private void InitializeLobby(NetworkRunner runner, NetworkObject lobbyObject)
+    {
+        _lobby = lobbyObject.GetComponent<NetworkLobby>();
+        _lobby.HostName = _playerName;
     }
 }

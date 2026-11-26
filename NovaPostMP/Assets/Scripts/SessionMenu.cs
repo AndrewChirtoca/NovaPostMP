@@ -7,6 +7,7 @@ public class SessionMenu : MonoBehaviour
 {
     private ISessionService _session;
     private string _roomName = "TestRoom";
+    private string _playerName = "Player";
     private string _error = "";
 
     [Inject]
@@ -27,13 +28,16 @@ public class SessionMenu : MonoBehaviour
 
         if (!_session.IsConnected)
         {
+            GUILayout.Label("Player name");
+            _playerName = GUILayout.TextField(_playerName, 32);
+            GUILayout.Label("Room name");
             _roomName = GUILayout.TextField(_roomName);
 
             if (GUILayout.Button("Host"))
             {
                 Run(async () =>
                 {
-                    _error = (await _session.HostAsync(_roomName)).Error ?? "";
+                    _error = (await _session.HostAsync(_roomName, _playerName)).Error ?? "";
                 });
             }
 
@@ -41,7 +45,7 @@ public class SessionMenu : MonoBehaviour
             {
                 Run(async () =>
                 {
-                    _error = (await _session.JoinAsync(_roomName)).Error ?? "";
+                    _error = (await _session.JoinAsync(_roomName, _playerName)).Error ?? "";
                 });
             }
         }

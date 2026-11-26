@@ -8,7 +8,7 @@ public interface ISessionService
     string Status { get; }
     IEnumerable<string> Players { get; }
 
-    Task<(bool Success, string Error)> HostAsync(string roomName);
-    Task<(bool Success, string Error)> JoinAsync(string roomName);
+    Task<(bool Success, string Error)> HostAsync(string roomName, string playerName);
+    Task<(bool Success, string Error)> JoinAsync(string roomName, string playerName);
     Task LeaveAsync();
 }

@@ -1,4 +1,5 @@
 using Fusion;
+using System.Text;
 
 public struct LobbyMember : INetworkStruct
 {
@@ -9,12 +10,12 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
 {
     [Networked, Capacity(4)] public NetworkDictionary<PlayerRef, LobbyMember> Members => default;
 
+    public string HostName { private get; set; }
+
     public override void Spawned()
     {
         if (!HasStateAuthority)
             return;
-        
-        UnityEngine.Debug.Log($"Lobby spawned in scene: {gameObject.scene.name}", gameObject);
 
         foreach (var player in Runner.ActivePlayers)
         {
@@ -40,9 +41,22 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
 
     private void AddMember(PlayerRef player)
     {
-        if (!Members.ContainsKey(player))
+        if (Members.ContainsKey(player))
+            return;
+
+        var token = Runner.GetPlayerConnectionToken(player);
+        string playerName = player == Runner.LocalPlayer ? HostName
+            : (token == null ? null : Encoding.UTF8.GetString(token));
+        if (string.IsNullOrWhiteSpace(playerName))
         {
-            Members.Add(player, new LobbyMember { Name = $"Player {player.RawEncoded}" });
+            playerName = $"Player {player.RawEncoded}";
         }
+
+        if (playerName.Length > 32)
+        {
+            playerName = playerName.Substring(0, 32);
+        }
+
+        Members.Add(player, new LobbyMember { Name = playerName });
     }
 }
