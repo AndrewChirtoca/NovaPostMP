@@ -17,11 +17,13 @@ public class PlayerInputProvider : MonoBehaviour
     private bool _grabItemAction;
     private bool _throwItemAction;
     private bool _removeItemAction;
+    private Transform _camera;
 
     private bool CanProvideInput => _session != null && _session.IsPlaying;
 
     private void Awake()
     {
+        _camera = Camera.main.transform;
         _moveInput = _inputActions.FindAction("Player/Move", throwIfNotFound: true);
         _spawnItemInput = _inputActions.FindAction("Player/SpawnItem", throwIfNotFound: true);
         _grabItemInput = _inputActions.FindAction("Player/GrabItem", throwIfNotFound: true);
@@ -69,9 +71,10 @@ public class PlayerInputProvider : MonoBehaviour
             return;
         }
 
+        var yaw = Quaternion.Euler(0f, _camera.eulerAngles.y, 0f);
         var data = new NetworkInputData
         {
-            Direction = new Vector3(_moveDirection.x, 0, _moveDirection.y)
+            Direction = yaw * new Vector3(_moveDirection.x, 0f, _moveDirection.y)
         };
         data.Buttons.Set(PlayerButton.SpawnItem, _spawnItemAction);
         data.Buttons.Set(PlayerButton.GrabItem, _grabItemAction);
