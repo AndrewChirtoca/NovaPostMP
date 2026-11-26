@@ -89,7 +89,7 @@ public class Player : NetworkBehaviour
 
             var item = hit.GetComponent<Item>();
 
-            if (item == null || item.Owner != null)
+            if (item == null || item.Holder != null)
                 continue;
 
             Vector3 direction = hit.transform.position - transform.position;

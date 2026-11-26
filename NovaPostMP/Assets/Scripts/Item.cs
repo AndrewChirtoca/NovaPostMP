@@ -6,7 +6,7 @@ using UnityEngine;
 [DefaultExecutionOrder(2000)]
 public class Item : NetworkBehaviour
 {
-    [Networked] public Player Owner { get; set; }
+    [Networked] public Player Holder { get; private set; }
 
     [SerializeField] private GameConfig _gameConfig;
     [SerializeField] private Rigidbody _rigidbody;
@@ -15,10 +15,13 @@ public class Item : NetworkBehaviour
 
     public bool TryGrab(Player player)
     {
-        if (!HasStateAuthority || Owner != null)
+        if (!HasStateAuthority || player == null || Holder != null)
             return false;
 
-        Owner = player;
+        if ((player.transform.position - transform.position).sqrMagnitude >= _gameConfig.GrabRange * _gameConfig.GrabRange)
+            return false;
+
+        Holder = player;
         ApplyColliderState();
         _rigidbody.linearVelocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
@@ -28,10 +31,10 @@ public class Item : NetworkBehaviour
 
     public bool TryRelease(Player player)
     {
-        if (!HasStateAuthority || Owner != player)
+        if (!HasStateAuthority || player == null || Holder != player)
             return false;
 
-        Owner = null;
+        Holder = null;
         _rigidbody.isKinematic = false;
         ApplyColliderState();
         return true;
@@ -39,13 +42,10 @@ public class Item : NetworkBehaviour
     
     public bool TryThrow(Player player, Vector3 throwDirection, float throwForce)
     {
-        if (!HasStateAuthority || Owner != player)
+        if (!TryRelease(player))
             return false;
 
-        Owner = null;
-        _rigidbody.isKinematic = false;
         _rigidbody.AddForce(throwDirection.normalized * throwForce, ForceMode.Impulse);
-        ApplyColliderState();
         return true;
     }
 
@@ -58,7 +58,7 @@ public class Item : NetworkBehaviour
         if (!HasStateAuthority)
             return;
         
-        if (Owner == null)
+        if (Holder == null)
         {
             // Recover if the holding player disconnected
             if (_rigidbody.isKinematic)
@@ -68,7 +68,7 @@ public class Item : NetworkBehaviour
         }
         else
         {
-            _rigidbody.MovePosition(Owner.transform.position + Owner.transform.rotation * _gameConfig.HoldOffset);
+            _rigidbody.MovePosition(Holder.transform.position + Holder.transform.rotation * _gameConfig.HoldOffset);
         }
     }
 
@@ -76,16 +76,16 @@ public class Item : NetworkBehaviour
     {
         base.Render();
 
-        if (Owner == null || _visual == null)
+        if (Holder == null || _visual == null)
             return;
 
-        Transform holderTransform = Owner.transform;
+        Transform holderTransform = Holder.transform;
         _visual.position = holderTransform.position + holderTransform.rotation * _gameConfig.HoldOffset;
     }
     
     private void ApplyColliderState()
     {
-        bool shouldBeEnabled = Owner == null;
+        bool shouldBeEnabled = Holder == null;
 
         if (_collider.enabled != shouldBeEnabled)
         {
