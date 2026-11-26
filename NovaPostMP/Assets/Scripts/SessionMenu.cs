@@ -1,14 +1,17 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VContainer;
 
 public class SessionMenu : MonoBehaviour
 {
+    [SerializeField] private InputActionAsset _inputActions;
     private ISessionService _session;
     private string _roomName = "TestRoom";
     private string _playerName = "Player";
     private string _error = "";
+    private bool _showPlayers;
 
     [Inject]
     public void Construct(ISessionService session)
@@ -16,10 +19,29 @@ public class SessionMenu : MonoBehaviour
         _session = session;
     }
 
+    private void Update()
+    {
+        if (_session == null || !_session.IsPlaying)
+            return;
+
+        if (_inputActions.FindAction("TogglePlayers").WasPressedThisFrame())
+        {
+            _showPlayers = !_showPlayers;
+        }
+    }
+
     private void OnGUI()
     {
         if (_session == null)
             return;
+
+        if (_session.IsLoading)
+        {
+            var color = GUI.color;
+            GUI.color = Color.black;
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.color = color;
+        }
 
         GUILayout.Label(_session.Status);
         GUILayout.Label(_error);
@@ -51,9 +73,17 @@ public class SessionMenu : MonoBehaviour
         }
         else
         {
-            foreach (var player in _session.Players)
+            if (!_session.IsPlaying || _showPlayers)
             {
-                GUILayout.Label(player.Name + (_session.IsLoading ? player.Loaded ? " - loaded" : " - loading" : ""));
+                foreach (var player in _session.Players)
+                {
+                    GUILayout.Label(player.Name + (_session.IsLoading ? player.Loaded ? " - loaded" : " - loading" : ""));
+                }
+            }
+
+            if (_session.IsPlaying)
+            {
+                GUILayout.Label("Tab: show/hide players");
             }
 
             if (_session.CanStart && GUILayout.Button("Start"))

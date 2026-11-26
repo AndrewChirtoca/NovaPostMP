@@ -135,6 +135,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "TogglePlayers",
+                    "type": "Button",
+                    "id": "eca6868c-4c10-45d5-9b26-e2f026ed1088",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -564,6 +574,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "RemoveItem",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3d6955d3-f151-4e5f-9d9a-89f5bc3eb840",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "TogglePlayers",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
