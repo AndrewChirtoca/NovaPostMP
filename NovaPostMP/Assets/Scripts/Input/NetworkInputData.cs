@@ -6,7 +6,8 @@ public enum PlayerButton
     SpawnItem,
     GrabItem,
     ThrowItem,
-    RemoveItem
+    RemoveItem,
+    ChangeColor
 }
 
 public struct NetworkInputData : INetworkInput

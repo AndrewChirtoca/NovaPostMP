@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6645004375362233461}
   - component: {fileID: 1061771065741953343}
   - component: {fileID: 613245089963529607}
+  - component: {fileID: 887536692829846612}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -57,6 +58,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 1061771065741953343}
   - {fileID: 613245089963529607}
+  - {fileID: 887536692829846612}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &6645004375362233461
 CharacterController:
@@ -116,6 +118,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   _gameConfig: {fileID: 11400000, guid: 10db06105398b75419e946917494e0b7, type: 2}
   _networkCharacterController: {fileID: 1061771065741953343}
+--- !u!114 &887536692829846612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167462160114263805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ec218929f3469cbf0c4a3c2a68c7be, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAppearance
+  _bodyRenderer: {fileID: 895405466065104873}
 --- !u!1 &4927479312973626081
 GameObject:
   m_ObjectHideFlags: 0

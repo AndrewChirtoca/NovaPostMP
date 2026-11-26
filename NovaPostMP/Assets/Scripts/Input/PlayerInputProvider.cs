@@ -12,11 +12,13 @@ public class PlayerInputProvider : MonoBehaviour
     private InputAction _grabItemInput;
     private InputAction _throwItemInput;
     private InputAction _removeItemInput;
+    private InputAction _changeColorInput;
     private Vector2 _moveDirection;
     private bool _spawnItemAction;
     private bool _grabItemAction;
     private bool _throwItemAction;
     private bool _removeItemAction;
+    private bool _changeColorAction;
     private Transform _camera;
 
     private bool CanProvideInput => _session != null && _session.IsPlaying;
@@ -29,6 +31,7 @@ public class PlayerInputProvider : MonoBehaviour
         _grabItemInput = _inputActions.FindAction("Player/GrabItem", throwIfNotFound: true);
         _throwItemInput = _inputActions.FindAction("Player/ThrowItem", throwIfNotFound: true);
         _removeItemInput = _inputActions.FindAction("Player/RemoveItem", throwIfNotFound: true);
+        _changeColorInput = _inputActions.FindAction("Player/ChangeColor", throwIfNotFound: true);
     }
 
     public void Initialize(ISessionService session)
@@ -59,6 +62,7 @@ public class PlayerInputProvider : MonoBehaviour
         _grabItemAction = _grabItemAction || _grabItemInput.WasPressedThisFrame();
         _throwItemAction = _throwItemAction || _throwItemInput.WasPressedThisFrame();
         _removeItemAction = _removeItemAction || _removeItemInput.WasPressedThisFrame();
+        _changeColorAction = _changeColorAction || _changeColorInput.WasPressedThisFrame();
         _moveDirection = _moveInput.ReadValue<Vector2>();
     }
 
@@ -80,14 +84,15 @@ public class PlayerInputProvider : MonoBehaviour
         data.Buttons.Set(PlayerButton.GrabItem, _grabItemAction);
         data.Buttons.Set(PlayerButton.ThrowItem, _throwItemAction);
         data.Buttons.Set(PlayerButton.RemoveItem, _removeItemAction);
+        data.Buttons.Set(PlayerButton.ChangeColor, _changeColorAction);
         input.Set(data);
 
-        _spawnItemAction = _grabItemAction = _throwItemAction = _removeItemAction = false;
+        _spawnItemAction = _grabItemAction = _throwItemAction = _removeItemAction = _changeColorAction = false;
     }
 
     private void ClearInput()
     {
-        _spawnItemAction = _grabItemAction = _throwItemAction = _removeItemAction = false;
+        _spawnItemAction = _grabItemAction = _throwItemAction = _removeItemAction = _changeColorAction = false;
         _moveDirection = Vector2.zero;
     }
 }
