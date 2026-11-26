@@ -29,12 +29,12 @@ public class Player : NetworkBehaviour
         if (!HasStateAuthority)
             return;
 
-        if (data.Buttons.IsSet(NetworkInputData.SpawnItemActionBit))
+        if (data.Buttons.IsSet(PlayerButton.SpawnItem))
         {
             Runner.Spawn(_gameConfig.ItemPrefab, transform.position + transform.forward + Vector3.up);
         }
 
-        if (data.Buttons.IsSet(NetworkInputData.GrabItemActionBit))
+        if (data.Buttons.IsSet(PlayerButton.GrabItem))
         {
             if (HeldItem == null)
             {
@@ -55,7 +55,7 @@ public class Player : NetworkBehaviour
             }
         }
 
-        if (data.Buttons.IsSet(NetworkInputData.ThrowItemActionBit))
+        if (data.Buttons.IsSet(PlayerButton.ThrowItem))
         {
             if (HeldItem != null)
             {
@@ -66,7 +66,7 @@ public class Player : NetworkBehaviour
             }
         }
 
-        if (data.Buttons.IsSet(NetworkInputData.RemoveItemActionBit))
+        if (data.Buttons.IsSet(PlayerButton.RemoveItem))
         {
             if (HeldItem != null)
             {

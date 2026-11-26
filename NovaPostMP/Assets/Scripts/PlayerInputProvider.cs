@@ -59,10 +59,10 @@ public class PlayerInputProvider : MonoBehaviour
         {
             Direction = new Vector3(_moveDirection.x, 0, _moveDirection.y)
         };
-        data.Buttons.Set(NetworkInputData.SpawnItemActionBit, _spawnItemAction);
-        data.Buttons.Set(NetworkInputData.GrabItemActionBit, _grabItemAction);
-        data.Buttons.Set(NetworkInputData.ThrowItemActionBit, _throwItemAction);
-        data.Buttons.Set(NetworkInputData.RemoveItemActionBit, _removeItemAction);
+        data.Buttons.Set(PlayerButton.SpawnItem, _spawnItemAction);
+        data.Buttons.Set(PlayerButton.GrabItem, _grabItemAction);
+        data.Buttons.Set(PlayerButton.ThrowItem, _throwItemAction);
+        data.Buttons.Set(PlayerButton.RemoveItem, _removeItemAction);
         input.Set(data);
 
         _spawnItemAction = _grabItemAction = _throwItemAction = _removeItemAction = false;
