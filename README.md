@@ -108,5 +108,5 @@ Gameplay tuning and the item prefab live in the serialized `GameConfig` asset.
 
 
 **Windows build link** https://drive.google.com/file/d/1X09VwQZlixgaCeGvQi8A4TO65gLyirHD/view?usp=sharing
-**Demo video link**
+**Demo video link** https://youtu.be/xVZ-nMK6VA8
 **Approximate total effort in hours**. ~30
