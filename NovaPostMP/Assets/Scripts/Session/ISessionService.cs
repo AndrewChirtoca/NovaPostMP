@@ -9,7 +9,7 @@ public interface ISessionService
     bool IsLoading { get; }
     bool IsPlaying { get; }
     string ConnectionStatus { get; }
-    IEnumerable<(string Name, bool Loaded)> Players { get; }
+    IEnumerable<(string Name, bool Loaded, int RttMs)> Players { get; }
 
     Task<(bool Success, string Error)> HostAsync(string roomName, string playerName);
     Task<(bool Success, string Error)> JoinAsync(string roomName, string playerName);

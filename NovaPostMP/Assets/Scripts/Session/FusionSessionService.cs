@@ -28,14 +28,17 @@ public class FusionSessionService : ISessionService
         }
     }
 
-    public IEnumerable<(string Name, bool Loaded)> Players
+    public IEnumerable<(string Name, bool Loaded, int RttMs)> Players
     {
         get
         {
             var sessionState = SessionState;
             return sessionState == null
-                ? Enumerable.Empty<(string, bool)>()
-                : sessionState.Members.Select(entry => (entry.Value.Name.ToString(), (bool)entry.Value.Loaded)).ToArray();
+                ? Enumerable.Empty<(string, bool, int)>()
+                : sessionState.Members.Select(entry => (
+                    entry.Value.Name.ToString(),
+                    (bool)entry.Value.Loaded,
+                    entry.Value.RttMs)).ToArray();
         }
     }
 

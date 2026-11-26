@@ -83,7 +83,10 @@ public class SessionMenu : MonoBehaviour
             {
                 foreach (var player in _session.Players)
                 {
-                    GUILayout.Label(player.Name + (_session.IsLoading ? player.Loaded ? " - loaded" : " - loading" : ""));
+                    string rtt = player.RttMs < 0 ? "--" : $"{player.RttMs} ms";
+                    string loading = _session.IsLoading ? (player.Loaded ? " - loaded" : " - loading") : "";
+
+                    GUILayout.Label($"{player.Name} - {rtt}{loading}");
                 }
             }
 

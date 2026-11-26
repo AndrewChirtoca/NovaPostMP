@@ -7,6 +7,7 @@ public struct SessionMember : INetworkStruct
     public NetworkString<_32> Name;
     public NetworkBool Loaded;
     public NetworkBool BlocksStart;
+    public int RttMs;
 }
 
 public class NetworkSessionState : NetworkBehaviour, IPlayerJoined, IPlayerLeft
@@ -20,6 +21,7 @@ public class NetworkSessionState : NetworkBehaviour, IPlayerJoined, IPlayerLeft
     public bool GameStarted => StartAt.IsRunning && StartAt.Expired(Runner);
     private PlayerSpawner _spawner;
     private bool _reportedLoaded;
+    private TickTimer _nextRttUpdate;
 
     public void BeginLoading()
     {
@@ -50,7 +52,12 @@ public class NetworkSessionState : NetworkBehaviour, IPlayerJoined, IPlayerLeft
 
     public override void FixedUpdateNetwork()
     {
-        if (!HasStateAuthority || !GameRequested)
+        if (!HasStateAuthority)
+            return;
+
+        UpdateRtt();
+
+        if (!GameRequested)
             return;
 
         if (!StartAt.IsRunning)
@@ -82,6 +89,28 @@ public class NetworkSessionState : NetworkBehaviour, IPlayerJoined, IPlayerLeft
     public bool CanPlay(PlayerRef player)
     {
         return GameStarted && Members.TryGet(player, out var member) && member.Loaded;
+    }
+
+    private void UpdateRtt()
+    {
+        if (!_nextRttUpdate.ExpiredOrNotRunning(Runner))
+            return;
+
+        _nextRttUpdate = TickTimer.CreateFromSeconds(Runner, 1f);
+
+        foreach (var entry in Members)
+        {
+            int rttMs = entry.Key == Runner.LocalPlayer
+                ? 0
+                : (int)System.Math.Round(Runner.GetPlayerRtt(entry.Key) * 1000.0);
+
+            var member = entry.Value;
+            if (member.RttMs == rttMs)
+                continue;
+
+            member.RttMs = rttMs;
+            Members.Set(entry.Key, member);
+        }
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
@@ -140,6 +169,6 @@ public class NetworkSessionState : NetworkBehaviour, IPlayerJoined, IPlayerLeft
             playerName = playerName.Substring(0, 32);
         }
 
-        Members.Add(player, new SessionMember { Name = playerName });
+        Members.Add(player, new SessionMember { Name = playerName, RttMs = -1 });
     }
 }
