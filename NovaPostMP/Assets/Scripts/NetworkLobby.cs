@@ -15,7 +15,7 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
     [Networked] public int GameplaySceneIndex { get; set; }
     [Networked] public bool GameRequested { get; private set; }
     [Networked] public bool GameStarted { get; private set; }
-    private BasicSpawner _spawner;
+    private PlayerSpawner _spawner;
 
     public void BeginLoading()
     {
@@ -40,15 +40,14 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
         {
             foreach (var entry in Members)
             {
-                _spawner.SpawnPlayer(Runner, entry.Key);
+                _spawner.SpawnPlayer(entry.Key);
             }
         }
     }
 
     public override void Spawned()
     {
-        _spawner = Runner.GetComponent<BasicSpawner>();
-        _spawner.Lobby = this;
+        _spawner = Runner.GetComponent<PlayerSpawner>();
         if (!HasStateAuthority)
             return;
 

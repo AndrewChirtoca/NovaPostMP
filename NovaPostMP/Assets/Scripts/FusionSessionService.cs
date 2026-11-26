@@ -12,8 +12,8 @@ public class FusionSessionService : ISessionService
     private NetworkLobby _lobby;
     private string _playerName;
 
-    private NetworkLobby Lobby => !IsConnected ? null : _lobby != null ? _lobby
-        : _lobby = _runner.GetAllBehaviours<NetworkLobby>().FirstOrDefault();
+    private NetworkLobby Lobby => !IsConnected ? null : _lobby != null && _lobby.IsValid ? _lobby
+        : _lobby = _runner.GetAllBehaviours<NetworkLobby>().FirstOrDefault(lobby => lobby.IsValid);
 
     public IEnumerable<string> Players => Lobby == null ? Enumerable.Empty<string>()
         : Lobby.Members.Select(entry => entry.Value.Name.ToString());
@@ -21,7 +21,7 @@ public class FusionSessionService : ISessionService
     public bool IsBusy { get; private set; }
     public bool IsConnected => _runner != null && _runner.IsRunning;
     public bool CanStart => !IsBusy && Lobby != null && _runner.IsServer && !Lobby.GameRequested;
-    public bool IsPlaying => Lobby != null && Lobby.GameStarted
+    public bool IsPlaying => !IsBusy && Lobby != null && Lobby.IsValid && Lobby.GameStarted
         && _runner.TryGetPlayerObject(_runner.LocalPlayer, out var avatar) && avatar != null;
     public bool IsLoading => Lobby != null && Lobby.GameRequested && !IsPlaying;
     public string Status { get; private set; } = "Disconnected";
@@ -58,9 +58,11 @@ public class FusionSessionService : ISessionService
             UnityEngine.Object.DontDestroyOnLoad(_runner.gameObject);
 
             _runner.ProvideInput = true;
-            _runner.GetComponent<BasicSpawner>().MaxPlayers = _settings.MaxPlayers;
+            _runner.GetComponent<PlayerSpawner>().MaxPlayers = _settings.MaxPlayers;
+            _runner.GetComponent<PlayerInputProvider>().Initialize(this);
             _runner.GetComponent<NetworkEvents>().OnShutdown.AddListener(OnShutdown);
             _runner.GetComponent<NetworkEvents>().OnSceneLoadDone.AddListener(OnSceneLoadDone);
+            _runner.GetComponent<NetworkEvents>().OnConnectRequest.AddListener(OnConnectRequest);
 
             var args = new StartGameArgs
             {
@@ -173,6 +175,7 @@ public class FusionSessionService : ISessionService
         {
             _runner.GetComponent<NetworkEvents>().OnShutdown.RemoveListener(OnShutdown);
             _runner.GetComponent<NetworkEvents>().OnSceneLoadDone.RemoveListener(OnSceneLoadDone);
+            _runner.GetComponent<NetworkEvents>().OnConnectRequest.RemoveListener(OnConnectRequest);
             UnityEngine.Object.Destroy(_runner.gameObject);
         }
 
@@ -180,6 +183,15 @@ public class FusionSessionService : ISessionService
         _lobby = null;
     }
     
+    private void OnConnectRequest(NetworkRunner runner,
+        NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
+    {
+        if (runner.ActivePlayers.Count() < _settings.MaxPlayers)
+            request.Accept();
+        else
+            request.Refuse();
+    }
+
     private void OnSceneLoadDone(NetworkRunner runner)
     {
         if (!runner.IsServer || _lobby != null)

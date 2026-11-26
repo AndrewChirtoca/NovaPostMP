@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5066590630219684700}
   - component: {fileID: 4270753806462934261}
   - component: {fileID: 7125608882246812541}
+  - component: {fileID: -5682436038942314899}
   m_Layer: 0
   m_Name: SessionRunner
   m_TagString: Untagged
@@ -157,4 +158,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BasicSpawner
   _playerPrefab:
     RawGuidValue: 95895f71cd068f44386ff935de3315c0
+--- !u!114 &-5682436038942314899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7878847073664736206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72e03979f76142c4b43bb6718ce1e5bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputProvider
   _inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
