@@ -9,6 +9,7 @@ public class AppScope : LifetimeScope
     [SerializeField] private NetworkPrefabRef _lobbyPrefab;
     [SerializeField] private SessionMenu menu;
     [SerializeField] private int _initialSceneIndex;
+    [SerializeField] private int _gameplaySceneIndex = 1;
 
     [SerializeField, Range(2, 4)] private int _maxPlayers = 4;
 
@@ -19,6 +20,7 @@ public class AppScope : LifetimeScope
             RunnerPrefab = _runnerPrefab,
             LobbyPrefab = _lobbyPrefab,
             InitialSceneIndex = _initialSceneIndex,
+            GameplaySceneIndex = _gameplaySceneIndex,
             MaxPlayers = _maxPlayers
         });
 

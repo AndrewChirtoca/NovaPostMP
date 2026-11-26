@@ -56,6 +56,15 @@ public class SessionMenu : MonoBehaviour
                 GUILayout.Label(player);
             }
 
+            if (_session.CanStart && GUILayout.Button("Start"))
+            {                
+                Run(() => _session.StartGameAsync());
+            }
+            if (_session.IsLoading)
+            {                
+                GUILayout.Label("Loading...");
+            }
+
             if (GUILayout.Button("Leave"))
             {
                 Run(() => _session.LeaveAsync());

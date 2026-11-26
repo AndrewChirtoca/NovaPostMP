@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Fusion;
+using UnityEngine.SceneManagement;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
@@ -19,6 +20,10 @@ public class FusionSessionService : ISessionService
 
     public bool IsBusy { get; private set; }
     public bool IsConnected => _runner != null && _runner.IsRunning;
+    public bool CanStart => !IsBusy && Lobby != null && _runner.IsServer && !Lobby.GameRequested;
+    public bool IsPlaying => Lobby != null && Lobby.GameStarted
+        && _runner.TryGetPlayerObject(_runner.LocalPlayer, out var avatar) && avatar != null;
+    public bool IsLoading => Lobby != null && Lobby.GameRequested && !IsPlaying;
     public string Status { get; private set; } = "Disconnected";
 
     public FusionSessionService(FusionSessionSettings settings)
@@ -93,6 +98,15 @@ public class FusionSessionService : ISessionService
         }
     }
 
+    public async Task StartGameAsync()
+    {
+        if (!CanStart)
+            return;
+
+        Lobby.BeginLoading();
+        await _runner.LoadScene(SceneRef.FromIndex(_settings.GameplaySceneIndex), LoadSceneMode.Additive);
+    }
+
     private async Task StopAsync(string status, bool shutdown = true)
     {
         IsBusy = true;
@@ -107,8 +121,15 @@ public class FusionSessionService : ISessionService
         finally
         {
             Cleanup();
-            Status = status;
-            IsBusy = false;
+            try
+            {
+                await UnloadGameplayAsync();
+            }
+            finally
+            {
+                Status = status;
+                IsBusy = false;
+            }
         }
     }
 
@@ -124,6 +145,25 @@ public class FusionSessionService : ISessionService
         catch (System.Exception exception)
         {
             UnityEngine.Debug.LogError(exception.Message);
+        }
+    }
+
+    private async Task UnloadGameplayAsync()
+    {
+        var scene = SceneManager.GetSceneByBuildIndex(_settings.GameplaySceneIndex);
+        var bootstrap = SceneManager.GetSceneByBuildIndex(_settings.InitialSceneIndex);
+        if (bootstrap.IsValid() && bootstrap.isLoaded)
+        {
+            SceneManager.SetActiveScene(bootstrap);
+        }
+
+        if (scene.IsValid() && scene.isLoaded)
+        {
+            var unload = SceneManager.UnloadSceneAsync(scene);
+            while (unload != null && !unload.isDone)
+            {
+                await Task.Yield();
+            }
         }
     }
 
@@ -152,5 +192,6 @@ public class FusionSessionService : ISessionService
     {
         _lobby = lobbyObject.GetComponent<NetworkLobby>();
         _lobby.HostName = _playerName;
+        _lobby.GameplaySceneIndex = _settings.GameplaySceneIndex;
     }
 }

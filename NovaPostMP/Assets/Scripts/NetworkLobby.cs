@@ -1,4 +1,5 @@
 using Fusion;
+using UnityEngine.SceneManagement;
 using System.Text;
 
 public struct LobbyMember : INetworkStruct
@@ -11,9 +12,43 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
     [Networked, Capacity(4)] public NetworkDictionary<PlayerRef, LobbyMember> Members => default;
 
     public string HostName { private get; set; }
+    [Networked] public int GameplaySceneIndex { get; set; }
+    [Networked] public bool GameRequested { get; private set; }
+    [Networked] public bool GameStarted { get; private set; }
+    private BasicSpawner _spawner;
+
+    public void BeginLoading()
+    {
+        if (HasStateAuthority)
+        {
+            GameRequested = true;
+        }
+    }
+
+    public override void Render()
+    {
+        var scene = SceneManager.GetSceneByBuildIndex(GameplaySceneIndex);
+        if (HasStateAuthority && GameRequested && scene.IsValid() && scene.isLoaded && !Runner.IsSceneManagerBusy)
+        {
+            GameStarted = true;
+        }
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if (HasStateAuthority && GameStarted)
+        {
+            foreach (var entry in Members)
+            {
+                _spawner.SpawnPlayer(Runner, entry.Key);
+            }
+        }
+    }
 
     public override void Spawned()
     {
+        _spawner = Runner.GetComponent<BasicSpawner>();
+        _spawner.Lobby = this;
         if (!HasStateAuthority)
             return;
 

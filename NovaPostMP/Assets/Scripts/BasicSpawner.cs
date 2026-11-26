@@ -11,6 +11,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new ();
 
     public int MaxPlayers { get; set; } = 4;
+    public NetworkLobby Lobby { get; set; }
+    private bool CanProvideInput => Lobby != null && Lobby.IsValid && Lobby.GameStarted;
 
     public void SpawnPlayer(NetworkRunner runner, PlayerRef player)
     {
@@ -23,10 +25,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         runner.SetPlayerObject(player, avatar);
     }
 
-    void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
-    {
-        SpawnPlayer(runner, player);
-    }
+    void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player) { }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
@@ -39,6 +38,13 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     #region Input handling
     void INetworkRunnerCallbacks.OnInput(NetworkRunner runner, NetworkInput input)
     {
+        if (!CanProvideInput)
+        {
+            ClearInput();
+            input.Set(default(NetworkInputData));
+            return;
+        }
+
         var data = new NetworkInputData();
 
         data.Direction = new Vector3(_moveDirection.x, 0, _moveDirection.y);
@@ -65,8 +71,20 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     private bool _removeItemAction;
     private Vector2 _moveDirection;
 
+    private void ClearInput()
+    {
+        _spawnItemAction = _grabItemAction = _throwItemAction = _removeItemAction = false;
+        _moveDirection = Vector2.zero;
+    }
+
     private void Update()
     {
+        if (!CanProvideInput)
+        {
+            ClearInput();
+            return;
+        }
+
         _spawnItemAction = _spawnItemAction || _inputActions.FindAction("SpawnItem").WasPressedThisFrame();
         _grabItemAction = _grabItemAction || _inputActions.FindAction("GrabItem").WasPressedThisFrame();
         _throwItemAction = _throwItemAction || _inputActions.FindAction("ThrowItem").WasPressedThisFrame();
