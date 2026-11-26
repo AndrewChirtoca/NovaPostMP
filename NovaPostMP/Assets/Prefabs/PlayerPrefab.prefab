@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1061771065741953343}
   - component: {fileID: 613245089963529607}
   - component: {fileID: 887536692829846612}
+  - component: {fileID: 555842019716483211}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -59,6 +60,7 @@ MonoBehaviour:
   - {fileID: 1061771065741953343}
   - {fileID: 613245089963529607}
   - {fileID: 887536692829846612}
+  - {fileID: 555842019716483211}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &6645004375362233461
 CharacterController:
@@ -131,6 +133,18 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAppearance
   _bodyRenderer: {fileID: 895405466065104873}
+--- !u!114 &555842019716483211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167462160114263805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10d56b4d442447049277a69eeaa5be2a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraBinding
 --- !u!1 &4927479312973626081
 GameObject:
   m_ObjectHideFlags: 0

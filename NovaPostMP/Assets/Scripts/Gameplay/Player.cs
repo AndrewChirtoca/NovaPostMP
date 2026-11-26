@@ -9,29 +9,6 @@ public class Player : NetworkBehaviour
     [Networked] public TickTimer StartAt { get; set; }
     [Networked] private Item HeldItem { get; set; }
     private int _itemLayerMask;
-    private OrbitCamera _orbitCamera;
-
-    public override void Spawned()
-    {
-        if (!HasInputAuthority)
-            return;
-
-        Camera camera = Camera.main;
-
-        if (camera != null && camera.TryGetComponent(out _orbitCamera))
-        {
-            _orbitCamera.SetTarget(transform);
-        }
-    }
-
-    public override void Despawned(NetworkRunner runner, bool hasState)
-    {
-        if (_orbitCamera != null)
-        {
-            _orbitCamera.SetTarget(null);
-            _orbitCamera = null;
-        }
-    }
     
     private void Awake()
     {
