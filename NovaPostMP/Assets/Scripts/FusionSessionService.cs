@@ -12,20 +12,64 @@ public class FusionSessionService : ISessionService
     private NetworkLobby _lobby;
     private string _playerName;
 
-    private NetworkLobby Lobby => !IsConnected ? null : _lobby != null && _lobby.IsValid ? _lobby
-        : _lobby = _runner.GetAllBehaviours<NetworkLobby>().FirstOrDefault(lobby => lobby.IsValid);
+    private NetworkLobby Lobby
+    {
+        get
+        {
+            if (IsBusy || !IsConnected)
+                return null;
 
-    public IEnumerable<(string Name, bool Loaded)> Players => Lobby == null
-        ? Enumerable.Empty<(string, bool)>()
-        : Lobby.Members.Select(entry => (entry.Value.Name.ToString(), (bool)entry.Value.Loaded));
+            if (_lobby == null || !_lobby.IsValid)
+            {
+                _lobby = _runner.GetAllBehaviours<NetworkLobby>().FirstOrDefault(lobby => lobby.IsValid);
+            }
+
+            return _lobby;
+        }
+    }
+
+    public IEnumerable<(string Name, bool Loaded)> Players
+    {
+        get
+        {
+            var lobby = Lobby;
+            return lobby == null
+                ? Enumerable.Empty<(string, bool)>()
+                : lobby.Members.Select(entry => (entry.Value.Name.ToString(), (bool)entry.Value.Loaded)).ToArray();
+        }
+    }
 
     public bool IsBusy { get; private set; }
     public bool IsConnected => _runner != null && _runner.IsRunning;
-    public bool CanStart => !IsBusy && Lobby != null && _runner.IsServer && !Lobby.GameRequested;
-    public bool IsPlaying => !IsBusy && Lobby != null && Lobby.IsValid && Lobby.CanPlay(_runner.LocalPlayer)
-        && _runner.TryGetPlayerObject(_runner.LocalPlayer, out var avatar) && avatar != null;
-    public bool IsLoading => Lobby != null && Lobby.GameRequested && !IsPlaying;
-    public string Status { get; private set; } = "Disconnected";
+    public bool CanStart
+    {
+        get
+        {
+            var lobby = Lobby;
+            return lobby != null && _runner.IsServer && !lobby.GameRequested;
+        }
+    }
+
+    public bool IsPlaying
+    {
+        get
+        {
+            var lobby = Lobby;
+            return lobby != null && lobby.CanPlay(_runner.LocalPlayer)
+                && _runner.TryGetPlayerObject(_runner.LocalPlayer, out var avatar) && avatar != null;
+        }
+    }
+
+    public bool IsLoading
+    {
+        get
+        {
+            var lobby = Lobby;
+            return lobby != null && lobby.GameRequested && !IsPlaying;
+        }
+    }
+
+    public string ConnectionStatus { get; private set; } = "Disconnected";
 
     public FusionSessionService(FusionSessionSettings settings)
     {
@@ -50,7 +94,7 @@ public class FusionSessionService : ISessionService
 
         _playerName = playerName.Trim();
         IsBusy = true;
-        Status = "Connecting...";
+        ConnectionStatus = "Connecting...";
         bool connected = false;
 
         try
@@ -85,7 +129,7 @@ public class FusionSessionService : ISessionService
                 return (false, result.ShutdownReason.ToString());
 
             connected = true;
-            Status = mode == GameMode.Host ? "Hosting" : "Connected";
+            ConnectionStatus = mode == GameMode.Host ? "Hosting" : "Connected";
             return (true, null);
         }
         finally
@@ -106,13 +150,26 @@ public class FusionSessionService : ISessionService
         if (!CanStart)
             return;
 
-        Lobby.BeginLoading();
-        await _runner.LoadScene(SceneRef.FromIndex(_settings.GameplaySceneIndex), LoadSceneMode.Additive);
+        var runner = _runner;
+        try
+        {
+            Lobby.BeginLoading();
+            await runner.LoadScene(SceneRef.FromIndex(_settings.GameplaySceneIndex), LoadSceneMode.Additive);
+        }
+        catch
+        {
+            if (runner != null && _runner == runner && !IsBusy)
+            {
+                await StopAsync("Scene loading failed.");
+            }
+            throw;
+        }
     }
 
     private async Task StopAsync(string status, bool shutdown = true)
     {
         IsBusy = true;
+        ConnectionStatus = "Disconnecting...";
 
         try
         {
@@ -130,7 +187,7 @@ public class FusionSessionService : ISessionService
             }
             finally
             {
-                Status = status;
+                ConnectionStatus = status;
                 IsBusy = false;
             }
         }

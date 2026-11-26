@@ -8,7 +8,7 @@ public interface ISessionService
     bool CanStart { get; }
     bool IsLoading { get; }
     bool IsPlaying { get; }
-    string Status { get; }
+    string ConnectionStatus { get; }
     IEnumerable<(string Name, bool Loaded)> Players { get; }
 
     Task<(bool Success, string Error)> HostAsync(string roomName, string playerName);

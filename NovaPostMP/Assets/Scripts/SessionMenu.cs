@@ -49,7 +49,7 @@ public class SessionMenu : MonoBehaviour
             GUI.color = color;
         }
 
-        GUILayout.Label(_session.Status);
+        GUILayout.Label(_session.ConnectionStatus);
         GUILayout.Label(_error);
 
         GUI.enabled = !_session.IsBusy;

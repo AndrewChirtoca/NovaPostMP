@@ -23,7 +23,7 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
 
     public void BeginLoading()
     {
-        if (!HasStateAuthority)
+        if (!HasStateAuthority || GameRequested)
             return;
 
         GameRequested = true;
