@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5000068648800167141}
   - component: {fileID: 8404202224390014688}
   m_Layer: 0
-  m_Name: NetworkSessionState
+  m_Name: NetworkSessionStatePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

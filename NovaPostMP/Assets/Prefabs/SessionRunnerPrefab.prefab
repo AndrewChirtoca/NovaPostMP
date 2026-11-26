@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7125608882246812541}
   - component: {fileID: -5682436038942314899}
   m_Layer: 0
-  m_Name: SessionRunner
+  m_Name: SessionRunnerPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
