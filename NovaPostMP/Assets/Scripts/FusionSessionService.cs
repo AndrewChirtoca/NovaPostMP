@@ -154,6 +154,12 @@ public class FusionSessionService : ISessionService
     private async Task UnloadGameplayAsync()
     {
         var scene = SceneManager.GetSceneByBuildIndex(_settings.GameplaySceneIndex);
+        while (scene.IsValid() && !scene.isLoaded)
+        {
+            await Task.Yield();
+            scene = SceneManager.GetSceneByBuildIndex(_settings.GameplaySceneIndex);
+        }
+
         var bootstrap = SceneManager.GetSceneByBuildIndex(_settings.InitialSceneIndex);
         if (bootstrap.IsValid() && bootstrap.isLoaded)
         {
