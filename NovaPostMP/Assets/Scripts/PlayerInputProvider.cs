@@ -7,6 +7,11 @@ public class PlayerInputProvider : MonoBehaviour
 {
     [SerializeField] private InputActionAsset _inputActions;
     private ISessionService _session;
+    private InputAction _moveInput;
+    private InputAction _spawnItemInput;
+    private InputAction _grabItemInput;
+    private InputAction _throwItemInput;
+    private InputAction _removeItemInput;
     private Vector2 _moveDirection;
     private bool _spawnItemAction;
     private bool _grabItemAction;
@@ -14,6 +19,15 @@ public class PlayerInputProvider : MonoBehaviour
     private bool _removeItemAction;
 
     private bool CanProvideInput => _session != null && _session.IsPlaying;
+
+    private void Awake()
+    {
+        _moveInput = _inputActions.FindAction("Player/Move", throwIfNotFound: true);
+        _spawnItemInput = _inputActions.FindAction("Player/SpawnItem", throwIfNotFound: true);
+        _grabItemInput = _inputActions.FindAction("Player/GrabItem", throwIfNotFound: true);
+        _throwItemInput = _inputActions.FindAction("Player/ThrowItem", throwIfNotFound: true);
+        _removeItemInput = _inputActions.FindAction("Player/RemoveItem", throwIfNotFound: true);
+    }
 
     public void Initialize(ISessionService session)
     {
@@ -39,11 +53,11 @@ public class PlayerInputProvider : MonoBehaviour
             return;
         }
 
-        _spawnItemAction = _spawnItemAction || _inputActions.FindAction("SpawnItem").WasPressedThisFrame();
-        _grabItemAction = _grabItemAction || _inputActions.FindAction("GrabItem").WasPressedThisFrame();
-        _throwItemAction = _throwItemAction || _inputActions.FindAction("ThrowItem").WasPressedThisFrame();
-        _removeItemAction = _removeItemAction || _inputActions.FindAction("RemoveItem").WasPressedThisFrame();
-        _moveDirection = _inputActions.FindAction("Move").ReadValue<Vector2>();
+        _spawnItemAction = _spawnItemAction || _spawnItemInput.WasPressedThisFrame();
+        _grabItemAction = _grabItemAction || _grabItemInput.WasPressedThisFrame();
+        _throwItemAction = _throwItemAction || _throwItemInput.WasPressedThisFrame();
+        _removeItemAction = _removeItemAction || _removeItemInput.WasPressedThisFrame();
+        _moveDirection = _moveInput.ReadValue<Vector2>();
     }
 
     private void OnInput(NetworkRunner runner, NetworkInput input)

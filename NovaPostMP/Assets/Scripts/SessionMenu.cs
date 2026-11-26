@@ -8,6 +8,7 @@ public class SessionMenu : MonoBehaviour
 {
     [SerializeField] private InputActionAsset _inputActions;
     private ISessionService _session;
+    private InputAction _togglePlayers;
     private string _roomName = "TestRoom";
     private string _playerName = "Player";
     private string _error = "";
@@ -19,12 +20,17 @@ public class SessionMenu : MonoBehaviour
         _session = session;
     }
 
+    private void Awake()
+    {
+        _togglePlayers = _inputActions.FindAction("Player/TogglePlayers", throwIfNotFound: true);
+    }
+
     private void Update()
     {
         if (_session == null || !_session.IsPlaying)
             return;
 
-        if (_inputActions.FindAction("TogglePlayers").WasPressedThisFrame())
+        if (_togglePlayers.WasPressedThisFrame())
         {
             _showPlayers = !_showPlayers;
         }
@@ -83,7 +89,7 @@ public class SessionMenu : MonoBehaviour
 
             if (_session.IsPlaying)
             {
-                GUILayout.Label("Tab: show/hide players");
+                GUILayout.Label($"{_togglePlayers.GetBindingDisplayString()}: show/hide players");
             }
 
             if (_session.CanStart && GUILayout.Button("Start"))
