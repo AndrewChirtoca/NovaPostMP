@@ -6,7 +6,7 @@ using Fusion;
 public class AppScope : LifetimeScope
 {
     [SerializeField] private NetworkRunner _runnerPrefab;
-    [SerializeField] private NetworkPrefabRef _lobbyPrefab;
+    [SerializeField] private NetworkPrefabRef _sessionStatePrefab;
     [SerializeField] private SessionMenu menu;
     [SerializeField] private int _initialSceneIndex;
     [SerializeField] private int _gameplaySceneIndex = 1;
@@ -18,7 +18,7 @@ public class AppScope : LifetimeScope
         builder.RegisterInstance(new FusionSessionSettings
         {
             RunnerPrefab = _runnerPrefab,
-            LobbyPrefab = _lobbyPrefab,
+            SessionStatePrefab = _sessionStatePrefab,
             InitialSceneIndex = _initialSceneIndex,
             GameplaySceneIndex = _gameplaySceneIndex,
             MaxPlayers = _maxPlayers

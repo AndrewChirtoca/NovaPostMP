@@ -9,22 +9,22 @@ public class FusionSessionService : ISessionService
 {
     private readonly FusionSessionSettings _settings;
     private NetworkRunner _runner;
-    private NetworkLobby _lobby;
+    private NetworkSessionState _sessionState;
     private string _playerName;
 
-    private NetworkLobby Lobby
+    private NetworkSessionState SessionState
     {
         get
         {
             if (IsBusy || !IsConnected)
                 return null;
 
-            if (_lobby == null || !_lobby.IsValid)
+            if (_sessionState == null || !_sessionState.IsValid)
             {
-                _lobby = _runner.GetAllBehaviours<NetworkLobby>().FirstOrDefault(lobby => lobby.IsValid);
+                _sessionState = _runner.GetAllBehaviours<NetworkSessionState>().FirstOrDefault(sessionState => sessionState.IsValid);
             }
 
-            return _lobby;
+            return _sessionState;
         }
     }
 
@@ -32,10 +32,10 @@ public class FusionSessionService : ISessionService
     {
         get
         {
-            var lobby = Lobby;
-            return lobby == null
+            var sessionState = SessionState;
+            return sessionState == null
                 ? Enumerable.Empty<(string, bool)>()
-                : lobby.Members.Select(entry => (entry.Value.Name.ToString(), (bool)entry.Value.Loaded)).ToArray();
+                : sessionState.Members.Select(entry => (entry.Value.Name.ToString(), (bool)entry.Value.Loaded)).ToArray();
         }
     }
 
@@ -45,8 +45,8 @@ public class FusionSessionService : ISessionService
     {
         get
         {
-            var lobby = Lobby;
-            return lobby != null && _runner.IsServer && !lobby.GameRequested;
+            var sessionState = SessionState;
+            return sessionState != null && _runner.IsServer && !sessionState.GameRequested;
         }
     }
 
@@ -54,8 +54,8 @@ public class FusionSessionService : ISessionService
     {
         get
         {
-            var lobby = Lobby;
-            return lobby != null && lobby.CanPlay(_runner.LocalPlayer)
+            var sessionState = SessionState;
+            return sessionState != null && sessionState.CanPlay(_runner.LocalPlayer)
                 && _runner.TryGetPlayerObject(_runner.LocalPlayer, out var avatar) && avatar != null;
         }
     }
@@ -64,8 +64,8 @@ public class FusionSessionService : ISessionService
     {
         get
         {
-            var lobby = Lobby;
-            return lobby != null && lobby.GameRequested && !IsPlaying;
+            var sessionState = SessionState;
+            return sessionState != null && sessionState.GameRequested && !IsPlaying;
         }
     }
 
@@ -153,7 +153,7 @@ public class FusionSessionService : ISessionService
         var runner = _runner;
         try
         {
-            Lobby.BeginLoading();
+            SessionState.BeginLoading();
             await runner.LoadScene(SceneRef.FromIndex(_settings.GameplaySceneIndex), LoadSceneMode.Additive);
         }
         catch
@@ -244,7 +244,7 @@ public class FusionSessionService : ISessionService
         }
 
         _runner = null;
-        _lobby = null;
+        _sessionState = null;
     }
     
     private void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
@@ -257,16 +257,16 @@ public class FusionSessionService : ISessionService
 
     private void OnSceneLoadDone(NetworkRunner runner)
     {
-        if (!runner.IsServer || _lobby != null)
+        if (!runner.IsServer || _sessionState != null)
             return;
 
-        runner.Spawn(_settings.LobbyPrefab, onBeforeSpawned: InitializeLobby);
+        runner.Spawn(_settings.SessionStatePrefab, onBeforeSpawned: InitializeSessionState);
     }
     
-    private void InitializeLobby(NetworkRunner runner, NetworkObject lobbyObject)
+    private void InitializeSessionState(NetworkRunner runner, NetworkObject sessionStateObject)
     {
-        _lobby = lobbyObject.GetComponent<NetworkLobby>();
-        _lobby.HostName = _playerName;
-        _lobby.GameplaySceneIndex = _settings.GameplaySceneIndex;
+        _sessionState = sessionStateObject.GetComponent<NetworkSessionState>();
+        _sessionState.HostName = _playerName;
+        _sessionState.GameplaySceneIndex = _settings.GameplaySceneIndex;
     }
 }

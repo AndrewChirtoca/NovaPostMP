@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5000068648800167141}
   - component: {fileID: 8404202224390014688}
   m_Layer: 0
-  m_Name: NetworkLobby
+  m_Name: NetworkSessionState
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,7 +44,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a29431c436340d4aeacff07d82c5c78, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkLobby
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkSessionState
   _Members:
     _items: []
 --- !u!114 &8404202224390014688

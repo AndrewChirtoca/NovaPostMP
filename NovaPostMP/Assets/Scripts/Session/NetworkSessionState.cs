@@ -2,16 +2,16 @@ using Fusion;
 using UnityEngine.SceneManagement;
 using System.Text;
 
-public struct LobbyMember : INetworkStruct
+public struct SessionMember : INetworkStruct
 {
     public NetworkString<_32> Name;
     public NetworkBool Loaded;
     public NetworkBool BlocksStart;
 }
 
-public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
+public class NetworkSessionState : NetworkBehaviour, IPlayerJoined, IPlayerLeft
 {
-    [Networked, Capacity(4)] public NetworkDictionary<PlayerRef, LobbyMember> Members => default;
+    [Networked, Capacity(4)] public NetworkDictionary<PlayerRef, SessionMember> Members => default;
 
     public string HostName { private get; set; }
     [Networked] public int GameplaySceneIndex { get; set; }
@@ -140,6 +140,6 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
             playerName = playerName.Substring(0, 32);
         }
 
-        Members.Add(player, new LobbyMember { Name = playerName });
+        Members.Add(player, new SessionMember { Name = playerName });
     }
 }
