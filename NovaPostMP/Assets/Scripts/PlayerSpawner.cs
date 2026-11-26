@@ -9,15 +9,20 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerLeft
 
     public int MaxPlayers { get; set; } = 4;
 
-    public void SpawnPlayer(PlayerRef player)
+    public void PreparePlayer(PlayerRef player, TickTimer startAt)
     {
-        if (!Runner.IsServer || _spawnedCharacters.ContainsKey(player))
+        if (!Runner.IsServer)
             return;
 
-        var position = new Vector3((player.RawEncoded % MaxPlayers) * 3, 1, 0);
-        var avatar = Runner.Spawn(_playerPrefab, position, Quaternion.identity, player);
-        _spawnedCharacters.Add(player, avatar);
-        Runner.SetPlayerObject(player, avatar);
+        if (!_spawnedCharacters.TryGetValue(player, out var avatar))
+        {
+            var position = new Vector3((player.RawEncoded % MaxPlayers) * 3, 1, 0);
+            avatar = Runner.Spawn(_playerPrefab, position, Quaternion.identity, player);
+            _spawnedCharacters.Add(player, avatar);
+            Runner.SetPlayerObject(player, avatar);
+        }
+
+        avatar.GetComponent<Player>().StartAt = startAt;
     }
 
     public void PlayerLeft(PlayerRef player)

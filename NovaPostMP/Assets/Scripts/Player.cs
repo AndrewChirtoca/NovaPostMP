@@ -6,6 +6,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameConfig _gameConfig;
     [SerializeField] private NetworkCharacterController _networkCharacterController;
     
+    [Networked] public TickTimer StartAt { get; set; }
     [Networked] private Item HeldItem { get; set; }
     private int _itemLayerMask;
     
@@ -16,6 +17,9 @@ public class Player : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
+        if (!StartAt.IsRunning || !StartAt.Expired(Runner))
+            return;
+
         if (GetInput(out NetworkInputData data))
         {
             data.Direction.Normalize();

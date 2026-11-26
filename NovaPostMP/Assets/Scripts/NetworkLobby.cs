@@ -16,7 +16,8 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
     public string HostName { private get; set; }
     [Networked] public int GameplaySceneIndex { get; set; }
     [Networked] public bool GameRequested { get; private set; }
-    [Networked] public bool GameStarted { get; private set; }
+    [Networked] public TickTimer StartAt { get; private set; }
+    public bool GameStarted => StartAt.IsRunning && StartAt.Expired(Runner);
     private PlayerSpawner _spawner;
     private bool _reportedLoaded;
 
@@ -52,7 +53,7 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
         if (!HasStateAuthority || !GameRequested)
             return;
 
-        if (!GameStarted)
+        if (!StartAt.IsRunning)
         {
             bool allLoaded = true;
             foreach (var entry in Members)
@@ -62,16 +63,13 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
             }
 
             if (allLoaded)
-                GameStarted = true;
+                StartAt = TickTimer.CreateFromSeconds(Runner, 1f);
         }
 
-        if (GameStarted)
+        foreach (var entry in Members)
         {
-            foreach (var entry in Members)
-            {
-                if (entry.Value.Loaded)
-                    _spawner.SpawnPlayer(entry.Key);
-            }
+            if (entry.Value.Loaded)
+                _spawner.PreparePlayer(entry.Key, StartAt);
         }
     }
 
