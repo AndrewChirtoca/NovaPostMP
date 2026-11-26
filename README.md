@@ -66,36 +66,36 @@ Gameplay tuning and the item prefab live in the serialized `GameConfig` asset.
   responsive while the host decides world interactions.
 - **Items:** only the host spawns items, without assigning them to their creator, so
   they survive the creator's departure.
-      - Grabbing checks range/availability
-      - Release and throw check the holder
-      - The first valid grab processed wins
-      - Held items become kinematic with their collider disabled
-      - Release restores physics
-      - Throw adds an impulse
-      - `NetworkRigidbody` synchronizes physics state
-      - Held visuals follow the interpolated holder
-      - `Holder` records possession without transferring Fusion authority
-      - No custom item prediction is added
+  - Grabbing checks range/availability
+  - Release and throw check the holder
+  - The first valid grab processed wins
+  - Held items become kinematic with their collider disabled
+  - Release restores physics
+  - Throw adds an impulse
+  - `NetworkRigidbody` synchronizes physics state
+  - Held visuals follow the interpolated holder
+  - `Holder` records possession without transferring Fusion authority
+  - No custom item prediction is added
 - **Loading and late join:** initial participants signal scene loading through
   `RPC_Loaded`. Once all remaining initial participants are ready, the host schedules
   a shared start tick one second ahead.
-      - Departed players leave the barrier
-      - Late joiners load independently
-      - The shared tick coordinates simulation
-      - Items, holders and colors are replicated for late joiners.
+  - Departed players leave the barrier
+  - Late joiners load independently
+  - The shared tick coordinates simulation
+  - Items, holders and colors are replicated for late joiners.
 - **Disconnects:** 
-      - Departing players/avatars are despawned
-      - Items recover physics when their holder disappears
-      - Host loss uses the existing shutdown path to unload Gameplay and return clients to the menu
-      - There is no host migration.
+  - Departing players/avatars are despawned
+  - Items recover physics when their holder disappears
+  - Host loss uses the existing shutdown path to unload Gameplay and return clients to the menu
+  - There is no host migration.
 - **Traffic:**
-      - Movement and action buttons travel as Fusion input
-      - Character and rigidbody snapshots follow the configured tick/send rates in
-  `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion`
-      - Loading is signaled once per peer
-      - Roster, readiness, holder and color use replicated properties
-      - RTT is sampled once per second and written only when changed
-      - Host RTT is zero
+  - Movement and action buttons travel as Fusion input
+  - Character and rigidbody snapshots follow the configured tick/send rates in
+    `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion`
+  - Loading is signaled once per peer
+  - Roster, readiness, holder and color use replicated properties
+  - RTT is sampled once per second and written only when changed
+  - Host RTT is zero
 
 ## Known issues and remaining work
 
@@ -108,5 +108,7 @@ Gameplay tuning and the item prefab live in the serialized `GameConfig` asset.
 
 
 **Windows build link** https://drive.google.com/file/d/1X09VwQZlixgaCeGvQi8A4TO65gLyirHD/view?usp=sharing
+
 **Demo video link** https://youtu.be/xVZ-nMK6VA8
+
 **Approximate total effort in hours**. ~30
