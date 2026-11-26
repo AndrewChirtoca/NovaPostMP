@@ -5,6 +5,10 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
+/// <summary>
+/// Owns the Fusion runner lifecycle, connection approval and scene transitions.
+/// Exposes session status, gameplay readiness and roster snapshots through ISessionService.
+/// </summary>
 public class FusionSessionService : ISessionService
 {
     private readonly FusionSessionSettings _settings;

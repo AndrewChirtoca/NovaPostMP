@@ -10,6 +10,10 @@ public struct SessionMember : INetworkStruct
     public int RttMs;
 }
 
+/// <summary>
+/// Replicates the roster, loading acknowledgements and host-measured RTT.
+/// Coordinates the shared start tick and requests avatars for loaded players, including late joiners.
+/// </summary>
 public class NetworkSessionState : NetworkBehaviour, IPlayerJoined, IPlayerLeft
 {
     [Networked, Capacity(4)] public NetworkDictionary<PlayerRef, SessionMember> Members => default;

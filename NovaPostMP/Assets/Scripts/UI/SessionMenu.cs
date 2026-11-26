@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer;
 
+/// <summary>
+/// Presents connection controls, loading feedback and the player roster through IMGUI.
+/// Delegates session operations to ISessionService and displays and logs errors.
+/// </summary>
 public class SessionMenu : MonoBehaviour
 {
     [SerializeField] private InputActionAsset _inputActions;

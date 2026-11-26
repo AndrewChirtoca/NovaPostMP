@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Follows the local player's assigned target and handles orbit input and cursor capture.
+/// Restores the menu camera pose when the target is cleared.
+/// </summary>
 public class OrbitCamera : MonoBehaviour
 {
     [SerializeField] private InputActionAsset _inputActions;

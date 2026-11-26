@@ -1,6 +1,10 @@
 using UnityEngine;
 using Fusion;
 
+/// <summary>
+/// Simulates avatar movement from Fusion input after the shared start tick.
+/// Processes item actions on state authority and tracks the currently held item.
+/// </summary>
 public class Player : NetworkBehaviour
 {
     [SerializeField] private GameConfig _gameConfig;

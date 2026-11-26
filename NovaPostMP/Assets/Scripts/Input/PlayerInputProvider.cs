@@ -2,6 +2,10 @@ using Fusion;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Buffers local actions between Unity frames and Fusion input callbacks with camera-relative movement.
+/// Submits neutral input until the game session starts.
+/// </summary>
 [RequireComponent(typeof(NetworkEvents))]
 public class PlayerInputProvider : MonoBehaviour
 {

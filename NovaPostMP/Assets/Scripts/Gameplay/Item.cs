@@ -3,6 +3,10 @@ using UnityEngine;
 
 //NOTE: DefaultExecutionOrder is necessary to ensure that the Render() runs after the player's interpolation
 //has been applied, so that the item's visuals are rendered in the correct position.
+/// <summary>
+/// Enforces authoritative grab, release and throw rules and controls held-item physics.
+/// Keeps held visuals aligned with the holder's interpolated position.
+/// </summary>
 [DefaultExecutionOrder(2000)]
 public class Item : NetworkBehaviour
 {
