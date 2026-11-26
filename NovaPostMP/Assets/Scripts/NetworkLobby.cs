@@ -59,17 +59,23 @@ public class NetworkLobby : NetworkBehaviour, IPlayerJoined, IPlayerLeft
             foreach (var entry in Members)
             {
                 if (entry.Value.BlocksStart && !entry.Value.Loaded)
+                {
                     allLoaded = false;
+                }
             }
 
             if (allLoaded)
+            {
                 StartAt = TickTimer.CreateFromSeconds(Runner, 1f);
+            }
         }
 
         foreach (var entry in Members)
         {
             if (entry.Value.Loaded)
+            {
                 _spawner.PreparePlayer(entry.Key, StartAt);
+            }
         }
     }
 
